@@ -111,123 +111,123 @@
   </div>
 </template>
 <script setup lang="ts">
-import ChangeLang from '@/layout/components/Topbar/ChangeLang.vue'
-import {onBeforeUnmount, onMounted, ref} from 'vue'
-import { Register, SendSmsCode } from '@/api/login'
-import { ElMessage, FormInstance, FormRules } from 'element-plus'
-import { Iphone, Message, User } from '@element-plus/icons-vue'
-import VantaClouds from 'vanta/src/vanta.clouds.js'
-import * as THREE from 'three'
-import { useRouter } from 'vue-router'
+import ChangeLang from "@/layout/components/Topbar/ChangeLang.vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { Register, SendSmsCode } from "@/api/login";
+import { ElMessage, FormInstance, FormRules } from "element-plus";
+import { Iphone, Message, User } from "@element-plus/icons-vue";
+import VantaClouds from "vanta/src/vanta.clouds.js";
+import * as THREE from "three";
+import { useRouter } from "vue-router";
 
-const router = useRouter()
-const countshow = ref(false)
-const sliderValue = ref(0)
-const popoverVisible = ref(false)
-const countdownTime = ref(0)
-const ruleFormRef = ref<FormInstance>()
+const router = useRouter();
+const countshow = ref(false);
+const sliderValue = ref(0);
+const popoverVisible = ref(false);
+const countdownTime = ref(0);
+const ruleFormRef = ref<FormInstance>();
 const model = ref({
   phone: null,
-  username: '',
-  password: '',
-  code: ''
-})
+  username: "",
+  password: "",
+  code: "",
+});
 const rules = ref<FormRules>({
   username: [
     {
       required: true,
-      message: '请输入要注册的用户名',
-      trigger: 'blur'
-    }
+      message: "请输入要注册的用户名",
+      trigger: "blur",
+    },
   ],
   phone: [
     {
       required: true,
-      message: '请输入要您的手机号',
-      trigger: 'blur'
+      message: "请输入要您的手机号",
+      trigger: "blur",
     },
     {
       pattern: /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[189]))\d{8}$/,
-      message: '手机号格式不正确',
-      trigger: 'blur'
-    }
+      message: "手机号格式不正确",
+      trigger: "blur",
+    },
   ],
   password: [
     {
       required: true,
-      message: '请输入密码',
-      trigger: 'blur'
+      message: "请输入密码",
+      trigger: "blur",
     },
     {
       min: 6,
       max: 18,
-      message: '密码最小长度为6，最大长度为18',
-      trigger: 'blur'
+      message: "密码最小长度为6，最大长度为18",
+      trigger: "blur",
     },
     {
       pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/,
-      message: '密码需包含至少一个大写字母、一个小写字母和一个数字',
-      trigger: 'change'
-    }
+      message: "密码需包含至少一个大写字母、一个小写字母和一个数字",
+      trigger: "change",
+    },
   ],
   code: [
     {
       required: true,
-      message: '请输入验证码',
-      trigger: 'blur'
-    }
-  ]
-})
+      message: "请输入验证码",
+      trigger: "blur",
+    },
+  ],
+});
 const sliderHandle = async () => {
   if (sliderValue.value === 100) {
-    popoverVisible.value = false
-    const { code } = await SendSmsCode(model.value.phone)
+    popoverVisible.value = false;
+    const { code } = await SendSmsCode(model.value.phone);
     if (code === 200) {
-      ElMessage.success('验证码已发送')
-      countshow.value = true
-      countdownTime.value = Date.now() + 60000
-      sliderValue.value = 0
-    } else ElMessage.error('发送失败')
+      ElMessage.success("验证码已发送");
+      countshow.value = true;
+      countdownTime.value = Date.now() + 60000;
+      sliderValue.value = 0;
+    } else ElMessage.error("发送失败");
   } else {
-    ElMessage.error('验证失败')
-    sliderValue.value = 0
+    ElMessage.error("验证失败");
+    sliderValue.value = 0;
   }
-}
+};
 const getPhoneCode = () => {
-  let reg = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[189]))\d{8}$/
+  let reg = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[189]))\d{8}$/;
   if (!reg.test(model.value.phone)) {
-    ElMessage.error('手机格式不正确')
-    return
-  } else popoverVisible.value = true
-}
-const toSubmit = async formEl => {
+    ElMessage.error("手机格式不正确");
+    return;
+  } else popoverVisible.value = true;
+};
+const toSubmit = async (formEl) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       // 验证成功
-      const { code } = await Register(model.value)
+      const { code } = await Register(model.value);
       if (code === 203) {
-        ElMessage.error('手机号已注册')
+        ElMessage.error("手机号已注册");
       } else if (code === 200) {
-        ElMessage.success('注册成功,正在前往登录...')
+        ElMessage.success("注册成功,正在前往登录...");
         setTimeout(function() {
-          router.push('/login')
-        }, 1500)
-      } else ElMessage.error('注册失败')
+          router.push("/login");
+        }, 1500);
+      } else ElMessage.error("注册失败");
     } else {
-      ElMessage.error('请检查信息')
-      console.log('error submit!', fields)
+      ElMessage.error("请检查信息");
+      console.log("error submit!", fields);
     }
-  })
-}
+  });
+};
 //backGroup
-const Area = ref(null)
-let vantaEffect = null
+const Area = ref(null);
+let vantaEffect = null;
 onMounted(() => {
   vantaEffect = VantaClouds({
     el: Area.value,
-    THREE: THREE
-  })
-})
+    THREE: THREE,
+  });
+});
 </script>
 <style scoped lang="scss">
 .bg {
@@ -340,7 +340,7 @@ onMounted(() => {
   .el-slider__runway,
   .el-slider {
     background-color: #e5e5e5;
-    content: '123123';
+    content: "123123";
   }
 
   .el-slider {
@@ -348,7 +348,7 @@ onMounted(() => {
   }
 
   .el-slider__button-wrapper::before {
-    content: '>'; // !!显示的内容,注意,一定是这个
+    content: ">"; // !!显示的内容,注意,一定是这个
     position: absolute;
     width: 20px;
     height: 25px;
